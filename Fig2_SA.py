@@ -6,21 +6,20 @@ Created on Tue Aug 16 15:27:45 2022
 @author: simonameiler
 """
 
-import sys
-import scipy as sp
+
 import numpy as np
 import pandas as pd
-import copy as cp
 import logging
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
+from pathlib import Path
 
 #Load Climada modules
-from climada.util.constants import SYSTEM_DIR # loads default directory paths for data
-from climada.engine.unsequa import UncOutput, CalcDeltaImpact, Calc
+from climada.engine.unsequa import UncOutput
 
-    
+DATA = Path('./data')
+
 LOGGER = logging.getLogger(__name__)
 
 ###########################################################################
@@ -28,8 +27,8 @@ LOGGER = logging.getLogger(__name__)
 ###########################################################################
 
 # define paths
-unsequa_dir = SYSTEM_DIR/"unsequa"
-res_dir = SYSTEM_DIR/"results"
+unsequa_dir = DATA
+res_dir = DATA
 
 res = 300
 ref_year = 2005
@@ -65,7 +64,7 @@ for reg in region:
     df1_S1_conf = output_dict[str(reg)+'_2050'].get_sensitivity(salib_si='S1_conf')
     df2_S1 = output_dict[str(reg)+'_2090'].get_sensitivity(salib_si='S1')
     df2_S1_conf = output_dict[str(reg)+'_2090'].get_sensitivity(salib_si='S1_conf')
-    
+
     dfS1 = df1_S1[["param","aai_agg","rp100"]]
     dfS1["aai_agg_2090"] = df2_S1.aai_agg
     dfS1["rp100_2090"] = df2_S1.rp100
@@ -88,7 +87,7 @@ for reg in region:
     df1_ST_conf = output_dict[str(reg)+'_2050'].get_sensitivity(salib_si='ST_conf')
     df2_ST = output_dict[str(reg)+'_2090'].get_sensitivity(salib_si='ST')
     df2_ST_conf = output_dict[str(reg)+'_2090'].get_sensitivity(salib_si='ST_conf')
-    
+
     dfST = df1_ST[["param","aai_agg","rp100"]]
     dfST["aai_agg_2090"] = df2_ST.aai_agg
     dfST["rp100_2090"] = df2_ST.rp100
@@ -143,18 +142,18 @@ for reg in region:
 # height = 0.2
 # for i in range(2):
 #     for r, reg in enumerate(region):
-#         mid_cent_a_S1 = ax[r,0].barh(y+0.45, sens1_df_dict[reg].aai_agg, xerr=conf1_df_dict[reg].aai_agg, 
+#         mid_cent_a_S1 = ax[r,0].barh(y+0.45, sens1_df_dict[reg].aai_agg, xerr=conf1_df_dict[reg].aai_agg,
 #                                 color=colPalette_d, height=height)
-#         end_cent_a_S1 = ax[r,0].barh(y+0.25, sens1_df_dict[reg].aai_agg_2090, xerr=conf1_df_dict[reg].aai_agg_2090, 
+#         end_cent_a_S1 = ax[r,0].barh(y+0.25, sens1_df_dict[reg].aai_agg_2090, xerr=conf1_df_dict[reg].aai_agg_2090,
 #                                 color=colPalette_l, hatch='///', height=height)
 #         mid_cent_rp_S1 = ax[r,0].barh(y-0.05, sens1_df_dict[reg].rp100, xerr=conf1_df_dict[reg].rp100,
 #                                 height=height, color=colPalette_d, hatch='xx')
 #         end_cent_rp_S1 = ax[r,0].barh(y-0.25, sens1_df_dict[reg].rp100_2090, xerr=conf1_df_dict[reg].rp100_2090,
 #                                 height=height, color=colPalette_l, hatch='**')
-#         mid_cent_a_ST = ax[r,1].barh(y+0.45, sensT_df_dict[reg].aai_agg, xerr=confT_df_dict[reg].aai_agg, 
+#         mid_cent_a_ST = ax[r,1].barh(y+0.45, sensT_df_dict[reg].aai_agg, xerr=confT_df_dict[reg].aai_agg,
 #                                 color=colPalette_d, label="\u0394 EAD (%)", height=height)
-#         end_cent_a_ST = ax[r,1].barh(y+0.25, sensT_df_dict[reg].aai_agg_2090, xerr=confT_df_dict[reg].aai_agg_2090, 
-#                                 color=colPalette_l, hatch='///', height=height)      
+#         end_cent_a_ST = ax[r,1].barh(y+0.25, sensT_df_dict[reg].aai_agg_2090, xerr=confT_df_dict[reg].aai_agg_2090,
+#                                 color=colPalette_l, hatch='///', height=height)
 #         mid_cent_rp_ST = ax[r,1].barh(y-0.05, sensT_df_dict[reg].rp100, xerr=confT_df_dict[reg].rp100,
 #                                 height=height, hatch='xx',color=colPalette_d)
 #         end_cent_rp_ST = ax[r,1].barh(y-0.25, sensT_df_dict[reg].rp100_2090, xerr=confT_df_dict[reg].rp100_2090,
@@ -175,9 +174,9 @@ for reg in region:
 #         ax[r,i].spines['bottom'].set_visible(True)
 
 # save_fig_str = "SA_TC_risk_MIT.png"
-# plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w', 
-#             edgecolor='w', orientation='portrait', papertype=None, 
-#             format='png', bbox_inches='tight', pad_inches=0.1) 
+# plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w',
+#             edgecolor='w', orientation='portrait', papertype=None,
+#             format='png', bbox_inches='tight', pad_inches=0.1)
 
 #%% make plot of both, S1 and ST - no confidence bars
 lst = ['mn_exp',
@@ -213,19 +212,19 @@ for i in range(2):
     for r, reg in enumerate(region):
         mid_cent_a_S1 = ax[r,0].barh(y+0.45, sens1_df_dict[reg].aai_agg,
                                 color=colPalette_d, height=height)
-        end_cent_a_S1 = ax[r,0].barh(y+0.25, sens1_df_dict[reg].aai_agg_2090, 
+        end_cent_a_S1 = ax[r,0].barh(y+0.25, sens1_df_dict[reg].aai_agg_2090,
                                 color=colPalette_l, hatch='///', height=height)
-        mid_cent_rp_S1 = ax[r,0].barh(y-0.05, sens1_df_dict[reg].rp100, 
+        mid_cent_rp_S1 = ax[r,0].barh(y-0.05, sens1_df_dict[reg].rp100,
                                 height=height, color=colPalette_d, hatch='xx')
-        end_cent_rp_S1 = ax[r,0].barh(y-0.25, sens1_df_dict[reg].rp100_2090, 
+        end_cent_rp_S1 = ax[r,0].barh(y-0.25, sens1_df_dict[reg].rp100_2090,
                                 height=height, color=colPalette_l, hatch='**')
-        mid_cent_a_ST = ax[r,1].barh(y+0.45, sensT_df_dict[reg].aai_agg, 
+        mid_cent_a_ST = ax[r,1].barh(y+0.45, sensT_df_dict[reg].aai_agg,
                                 color=colPalette_d, label="\u0394 EAD (%)", height=height)
-        end_cent_a_ST = ax[r,1].barh(y+0.25, sensT_df_dict[reg].aai_agg_2090, 
-                                color=colPalette_l, hatch='///', height=height)      
-        mid_cent_rp_ST = ax[r,1].barh(y-0.05, sensT_df_dict[reg].rp100, 
+        end_cent_a_ST = ax[r,1].barh(y+0.25, sensT_df_dict[reg].aai_agg_2090,
+                                color=colPalette_l, hatch='///', height=height)
+        mid_cent_rp_ST = ax[r,1].barh(y-0.05, sensT_df_dict[reg].rp100,
                                 height=height, hatch='xx',color=colPalette_d)
-        end_cent_rp_ST = ax[r,1].barh(y-0.25, sensT_df_dict[reg].rp100_2090, 
+        end_cent_rp_ST = ax[r,1].barh(y-0.25, sensT_df_dict[reg].rp100_2090,
                                 height=height, color=colPalette_l, hatch='**')
         #ax[r,i].text(0.9, 0.5, reg, transform=ax[r,i].transAxes, fontsize=16)
         ax[0,0].set_title("Frist-order sensitivity", fontsize=16)
@@ -243,11 +242,124 @@ for i in range(2):
         ax[r,i].spines['bottom'].set_visible(True)
 
 # save_fig_str = "SA_TC_risk_MIT.png"
-# plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w', 
-#             edgecolor='w', orientation='portrait', papertype=None, 
-#             format='png', bbox_inches='tight', pad_inches=0.1) 
+# plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w',
+#             edgecolor='w', orientation='portrait', papertype=None,
+#             format='png', bbox_inches='tight', pad_inches=0.1)
+
+
+import matplotlib.pyplot as plt
+class Handler(object):
+    def __init__(self, color1, color2):
+        self.color1=color1
+        self.color2=color2
+    def legend_artist(self, legend, orig_handle, fontsize, handlebox):
+        x0, y0 = handlebox.xdescent, handlebox.ydescent
+        width, height = handlebox.width, handlebox.height
+        patch = plt.Rectangle([x0, y0], width, height, facecolor=self.color1,
+                                   edgecolor='k', transform=handlebox.get_transform())
+        patch2 = plt.Rectangle([x0+width/2., y0], width/2., height, facecolor=self.color2,
+                                   edgecolor='k', transform=handlebox.get_transform())
+        handlebox.add_artist(patch)
+        handlebox.add_artist(patch2)
+        return patch
+
+for r, reg in enumerate(region):
+    sens1_df_dict[reg][sens1_df_dict[reg] < 0] = 0
+
+#fig, axes = plt.subplots(figsize=(10, 15), ncols=2, layout='constrained', sharey=True)
+fig, axes = plt.subplots(figsize=(10, 15), ncols=2, sharey=True)
+fig.subplots_adjust(bottom=0.20, wspace=0.07)
+bars_aai = []
+
+small_shift = 0.15
+bar_height = 0.25
+large_shift = 1 #must be integer
+
+output_btt = ['rp100_2090', 'aai_agg_2090', 'rp100', 'aai_agg']
+
+region_btt = region[::-1]
+
+sens_names = [
+    'Exposure distribution',
+    'SSP exposures',
+    'GDP model',
+    'Event subsampling future',
+    'Event subsampling base',
+    'SSP hazard',
+    'GCM',
+    'Wind model',
+    'Vulnerability steepness']
+
+for ax, sens_dict in zip(axes, [sens1_df_dict, sensT_df_dict]):
+    #bottom
+    for r, reg in enumerate(region_btt):
+        val_tot = 0
+        for i, val in enumerate(sens_dict[reg][output_btt[0]]):
+            bar = ax.barh(r-small_shift, width=val, height=bar_height, left=val_tot, color=colPalette_d[i])
+            val_tot += val
+            bars_aai.append(bar)
+        val_tot = 0
+        for i, val in enumerate(sens_dict[reg][output_btt[1]]):
+            ax.barh(r+small_shift, width=val, height=bar_height, left=val_tot, color=colPalette_l[i])
+            val_tot += val
+    #top
+    for r, reg in enumerate(region_btt):
+        val_tot = 0
+        for i, val in enumerate(sens_dict[reg][output_btt[2]]):
+            ax.barh(r-small_shift+large_shift+4 , width=val, height=bar_height, left=val_tot, color=colPalette_d[i])
+            val_tot += val
+        val_tot = 0
+        for i, val in enumerate(sens_dict[reg][output_btt[3]]):
+            ax.barh(r+small_shift+large_shift+4 , width=val, height=bar_height, left=val_tot, color=colPalette_l[i])
+            val_tot += val
+
+axes[0].annotate('Average Annual Impact', xytext=(0.5, 4), xy=(0.8, 5), arrowprops=dict(facecolor='black', shrink=0.05))
+axes[1].annotate('Return Period 100', xytext=(0.6, 4), xy=(1.2, 4.8), arrowprops=dict(facecolor='black', shrink=0.05))
+
+
+plt.setp(axes[0], yticks=range(2*len(region)+large_shift), yticklabels=region_btt  + large_shift*[''] + region_btt )
+axes[0].set_xlabel('S1')
+axes[1].set_xlabel('ST')
+
+axes[0].text(-0.15, 1.5, '2090', size='large', rotation='vertical')
+axes[0].text(-0.15, 6.5, '2050', size='large', rotation='vertical')
+
+handles = [plt.Rectangle((0,0), 1,1) for i in range(len(colPalette_d)+1)]
+hmap = dict(zip(handles, [Handler(col1, col2) for col1, col2 in zip(colPalette_l, colPalette_d)]))
+axes[0].legend(handles=handles, labels=sens_names, handler_map=hmap, ncol=4, loc='center left',
+             bbox_to_anchor=(0, -0.2),fancybox=False, shadow=False, fontsize='medium')
 
 
 
-
+# fig, ax = plt.subplots(figsize=(10, 15))
+# bars_aai = []
+# for r, reg in enumerate(region):
+#     val_tot = 0
+#     for i, val in enumerate(sens1_df_dict[reg]['aai_agg']):
+#         bar = ax.barh(r/2, width=val, height=0.3, left=val_tot, color=colPalette_l[i])
+#         val_tot += val
+#         bars_aai.append(bar)
+# for r, reg in enumerate(region):
+#     val_tot = 0
+#     for i, val in enumerate(sens1_df_dict[reg]['rp100']):
+#         bar = ax.barh(r/2+4, width=val, height=0.3, left=val_tot, color=colPalette_l[i])
+#         val_tot += val
+# for r, reg in enumerate(region):
+#     val_tot = 0
+#     for i, val in enumerate(sens1_df_dict[reg]['aai_agg_2090']):
+#         bar = ax.barh(r/2+8, width=val, height=0.3, left=val_tot, color=colPalette_l[i])
+#         val_tot += val
+# for r, reg in enumerate(region):
+#     val_tot = 0
+#     for i, val in enumerate(sens1_df_dict[reg]['rp100_2090']):
+#         bar = ax.barh(r/2+12, width=val, height=0.3, left=val_tot, color=colPalette_l[i])
+#         val_tot += val
+# plt.setp(ax, yticks=[0,0.5,1,1.5], yticklabels=region)
+# plt.setp(ax, yticks=np.array([0,0.5,1,1.5])+4, yticklabels=region)
+# ax.set_xlabel('S1')
+# ax.legend(bars_aai, sens1_df_dict['AP'].index.values, loc='center right')
+# ax.text(-0.1, 4, 'RP100_2050', size='medium', rotation='vertical')
+# ax.text(-0.1, 0, 'AAI_AGG_2050', size='medium', rotation='vertical')
+# ax.text(-0.1, 8, 'AAI_AGG_2090', size='medium', rotation='vertical')
+# ax.text(-0.1, 12, 'RP_2090', size='medium', rotation='vertical')
 
