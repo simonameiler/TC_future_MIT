@@ -6,20 +6,17 @@ Created on Tue Aug 16 15:27:45 2022
 @author: simonameiler
 """
 
-import sys
-import scipy as sp
-import numpy as np
-import pandas as pd
 import copy as cp
 import logging
 import seaborn as sns
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 #Load Climada modules
 from climada.util.constants import SYSTEM_DIR # loads default directory paths for data
-from climada.engine.unsequa import UncOutput, CalcDeltaImpact, Calc
+from climada.engine.unsequa import UncOutput
 
-    
+
 LOGGER = logging.getLogger(__name__)
 
 ###########################################################################
@@ -27,8 +24,8 @@ LOGGER = logging.getLogger(__name__)
 ###########################################################################
 
 # define paths
-unsequa_dir = SYSTEM_DIR/"unsequa"
-res_dir = SYSTEM_DIR/"results"
+unsequa_dir = Path('data/')
+res_dir = Path('./')
 
 res = 300
 ref_year = 2005
@@ -84,6 +81,21 @@ labels_dict = {(0,0): 'a)',
                (3,0): 'g)',
                (3,1): 'h)'}
 models = ['cesm2', 'cnrm6', 'ecearth', 'fgoals', 'ipsl6', 'miroc6', 'mpi6', 'mri6', 'ukmo6']
+models_TCR = [2.0, 2.22, 2.30, 1.50, 2.35, 1.55, 1.64, 1.67, 2.77]
+
+# Order by climate sensitivity
+TCR_dict = {1: 2.0,
+            2: 2.22,
+            3: 2.30,
+            4: 1.50,
+            5: 2.35,
+            6: 1.55,
+            7: 1.64,
+            8: 1.67,
+            9: 2.77}
+output_df.gc_model.replace(TCR_dict, inplace=True)
+output_df.sort_values('gc_model', inplace=True)
+
 # okay, now make this pretty
 fig, ax = plt.subplots(nrows=4, ncols=2, figsize=(12,18), sharex=True, sharey=False)
 
@@ -93,23 +105,23 @@ customPalette_d = sns.hls_palette(n_colors=3, l=0.4, s=1.)
 for r, reg in enumerate(region):
     for p, per in enumerate(period):
         sns.stripplot(
-            data=output_df, x="gc_model", y=f"{reg}_{per}_{metric}_unc", hue="ssp_haz", 
-            marker='.', dodge=True, alpha=.75, zorder=1, legend=False, palette=["grey"], 
+            data=output_df, x="gc_model", y=f"{reg}_{per}_{metric}_unc", hue="ssp_haz",
+            marker='.', dodge=True, alpha=.75, zorder=1, legend=False, palette=["grey"],
             ax=ax[r,p])
-        
+
         sns.stripplot(
-            data=output_df, x="gc_model", y=f"{reg}_{per}_{metric}_ssp_unc", hue="ssp_haz", 
-            marker=".", dodge=True, alpha=.75, zorder=2, legend=False, palette=customPalette_d, 
+            data=output_df, x="gc_model", y=f"{reg}_{per}_{metric}_ssp_unc", hue="ssp_haz",
+            marker=".", dodge=True, alpha=.75, zorder=2, legend=False, palette=customPalette_d,
             ax=ax[r,p])
-        
+
         sns.pointplot(
             data=output_df, x="gc_model", y=f"{reg}_{per}_{metric}_ssp_unc", hue="ssp_haz",
-            join=False, dodge=.8 - .8 / 3, palette=customPalette_d, markers="d", 
+            join=False, dodge=.8 - .8 / 3, palette=customPalette_d, markers="d",
             scale=1., estimator="median", errorbar=None, ax=ax[r,p])
-        
-        ax[r,0].text(-0.25, 0.5, reg, transform=ax[r,0].transAxes, 
+
+        ax[r,0].text(-0.25, 0.5, reg, transform=ax[r,0].transAxes,
                         fontsize=16, rotation=90)
-        ax[r,p].text(-0.1, 1.05, labels_dict[r,p], transform=ax[r,p].transAxes, 
+        ax[r,p].text(-0.1, 1.05, labels_dict[r,p], transform=ax[r,p].transAxes,
                      fontsize=16, fontweight="bold")
         ax[0,0].set_title('2050')
         ax[0,1].set_title('2090')
@@ -117,14 +129,58 @@ for r, reg in enumerate(region):
         ax[r,p].get_yaxis().set_visible(True)
         ax[r,p].set(xlabel='GCMs', ylabel=f'\u0394 {metric} (%)')
         ax[r,p].set_xticklabels(models, rotation=90)
+
 handles, labels = ax[1,1].get_legend_handles_labels()
 ax[1,1].legend(handles=handles, labels=['SSP245', 'SSP370', 'SSP585'], loc="upper left", bbox_to_anchor=(1, 0.05), handletextpad=0)
 
-# save_fig_str = f"UA_TC_risk_MIT_{metric}.png"
-# plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w', 
-#             edgecolor='w', orientation='portrait', papertype=None, 
-#             format='png', bbox_inches='tight', pad_inches=0.1) 
+# save_fig_str = f"UA_TC_risk_MIT_{metric}_v21.png"
+# plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w',
+#             edgecolor='w', orientation='portrait', papertype=None,
+#             format='png', bbox_inches='tight', pad_inches=0.1)
 
 
+# plot with fixe y-axis range
+fig, ax = plt.subplots(nrows=4, ncols=2, figsize=(12,18), sharex=True, sharey=False)
+
+# # Set your custom color palette
+customPalette_l = sns.hls_palette(n_colors=3, s=0.6)
+customPalette_d = sns.hls_palette(n_colors=3, l=0.4, s=1.)
+for r, reg in enumerate(region):
+    for p, per in enumerate(period):
+        sns.stripplot(
+            data=output_df, x="gc_model", y=f"{reg}_{per}_{metric}_unc", hue="ssp_haz",
+            marker='.', dodge=True, alpha=.75, zorder=1, legend=False, palette=["grey"],
+            ax=ax[r,p])
+
+        sns.stripplot(
+            data=output_df, x="gc_model", y=f"{reg}_{per}_{metric}_ssp_unc", hue="ssp_haz",
+            marker=".", dodge=True, alpha=.75, zorder=2, legend=False, palette=customPalette_d,
+            ax=ax[r,p])
+
+        sns.pointplot(
+            data=output_df, x="gc_model", y=f"{reg}_{per}_{metric}_ssp_unc", hue="ssp_haz",
+            join=False, dodge=.8 - .8 / 3, palette=customPalette_d, markers="d",
+            scale=1., estimator="median", errorbar=None, ax=ax[r,p])
+
+        ax[r,0].text(-0.25, 0.5, reg, transform=ax[r,0].transAxes,
+                        fontsize=16, rotation=90)
+        ax[r,p].text(-0.1, 1.05, labels_dict[r,p], transform=ax[r,p].transAxes,
+                     fontsize=16, fontweight="bold")
+        ax[0,0].set_title('2050')
+        ax[0,1].set_title('2090')
+        ax[r,p].get_legend().remove()
+        ax[r,p].get_yaxis().set_visible(True)
+        ax[r,p].set(xlabel='GCMs', ylabel=f'\u0394 {metric} (%)')
+        ax[r,p].set_xticklabels(models, rotation=90)
+        if p==0:
+            ax[r,p].set_ylim([1, 200])
+        else:
+            ax[r,p].set_ylim([1, 400])
+handles, labels = ax[1,1].get_legend_handles_labels()
+ax[1,1].legend(handles=handles, labels=['SSP245', 'SSP370', 'SSP585'], loc="upper left", bbox_to_anchor=(1, 0.05), handletextpad=0)
 
 
+# save_fig_str = f"UA_TC_risk_MIT_{metric}_v22.png"
+# plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w',
+#             edgecolor='w', orientation='portrait', papertype=None,
+#             format='png', bbox_inches='tight', pad_inches=0.1)
