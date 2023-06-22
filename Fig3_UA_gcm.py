@@ -6,10 +6,12 @@ Created on Tue Aug 16 15:27:45 2022
 @author: simonameiler
 """
 
+import numpy as np
 import copy as cp
 import logging
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 from pathlib import Path
 
 #Load Climada modules
@@ -25,7 +27,8 @@ LOGGER = logging.getLogger(__name__)
 
 # define paths
 unsequa_dir = Path('data/')
-res_dir = Path('./')
+#res_dir = Path('./')
+res_dir = SYSTEM_DIR/'results'
 
 res = 300
 ref_year = 2005
@@ -69,8 +72,7 @@ for reg in region:
 
 
 #%%
-
-metric = "rp100"
+metric = "EAD"
 
 labels_dict = {(0,0): 'a)',
                (0,1): 'b)',
@@ -80,8 +82,27 @@ labels_dict = {(0,0): 'a)',
                (2,1): 'f)',
                (3,0): 'g)',
                (3,1): 'h)'}
-models = ['cesm2', 'cnrm6', 'ecearth', 'fgoals', 'ipsl6', 'miroc6', 'mpi6', 'mri6', 'ukmo6']
-models_TCR = [2.0, 2.22, 2.30, 1.50, 2.35, 1.55, 1.64, 1.67, 2.77]
+
+TCR_corr_EAD_dict = {(0,0): 0.71,
+                     (0,1): 0.66,
+                     (1,0): 0.52,
+                     (1,1): 0.48,
+                     (2,0): 0.44,
+                     (2,1): 0.33,
+                     (3,0): 0.60,
+                     (3,1): 0.57}
+
+TCR_corr_rp100_dict = {(0,0): 0.65,
+                       (0,1): 0.66,
+                       (1,0): 0.48,
+                       (1,1): 0.45,
+                       (2,0): 0.34,
+                       (2,1): 0.27,
+                       (3,0): 0.50,
+                       (3,1): 0.41}
+
+corr_dict = {'EAD': TCR_corr_EAD_dict,
+             'rp100': TCR_corr_rp100_dict}
 
 # Order by climate sensitivity
 TCR_dict = {1: 2.0,
@@ -93,12 +114,26 @@ TCR_dict = {1: 2.0,
             7: 1.64,
             8: 1.67,
             9: 2.77}
+
+models_TCR = [2.0, 2.22, 2.30, 1.50, 2.35, 1.55, 1.64, 1.67, 2.77]
+models_srtd = ['fgoals', 'miroc6', 'mpi6', 'mri6', 'cesm2', 'cnrm6', 'ecearth', 'ipsl6', 'ukmo6']
+
 output_df.gc_model.replace(TCR_dict, inplace=True)
 output_df.sort_values('gc_model', inplace=True)
 
+# options for secondary y-axis plots - sort TCR values
+TCR_list = list(TCR_dict.values())
+TCR_list.sort()
+plt_points = np.arange(0,9)
+
 # okay, now make this pretty
-fig, ax = plt.subplots(nrows=4, ncols=2, figsize=(12,18), sharex=True, sharey=False)
-
+fig, ax = plt.subplots(nrows=4, ncols=2, figsize=(12,12), sharex=True, sharey=False)
+plt.subplots_adjust(left=0.1,
+                    bottom=0.1,
+                    right=0.9,
+                    top=0.9,
+                    wspace=0.4,
+                    hspace=0.4)
 # # Set your custom color palette
 customPalette_l = sns.hls_palette(n_colors=3, s=0.6)
 customPalette_d = sns.hls_palette(n_colors=3, l=0.4, s=1.)
@@ -123,24 +158,39 @@ for r, reg in enumerate(region):
                         fontsize=16, rotation=90)
         ax[r,p].text(-0.1, 1.05, labels_dict[r,p], transform=ax[r,p].transAxes,
                      fontsize=16, fontweight="bold")
+        ax[r,p].text(0.05, 0.9, 'corr: '+str(corr_dict[metric][r,p]), 
+                      transform=ax[r,p].transAxes, fontsize=16)
         ax[0,0].set_title('2050')
         ax[0,1].set_title('2090')
         ax[r,p].get_legend().remove()
         ax[r,p].get_yaxis().set_visible(True)
         ax[r,p].set(xlabel='GCMs', ylabel=f'\u0394 {metric} (%)')
-        ax[r,p].set_xticklabels(models, rotation=90)
-
+        ax[r,p].set_xticklabels(models_srtd, rotation=90)
+        
+        secax_y = ax[r,p].twinx()
+        secax_y.plot(plt_points, TCR_list, marker='*', color='k', markersize=12, ls='')
+        secax_y.set_ylabel('TCR')
+        sns.despine()
 handles, labels = ax[1,1].get_legend_handles_labels()
-ax[1,1].legend(handles=handles, labels=['SSP245', 'SSP370', 'SSP585'], loc="upper left", bbox_to_anchor=(1, 0.05), handletextpad=0)
+handles2 = Line2D([0], [0], marker='*', color='k', label='TCR', linestyle = 'None',
+                          markerfacecolor='k', markersize=12)
+handles.append(handles2)
+ax[1,1].legend(handles=handles, labels=['SSP245', 'SSP370', 'SSP585', 'TCR'], loc="upper left", bbox_to_anchor=(1.1, 0.25), handletextpad=0)
 
-# save_fig_str = f"UA_TC_risk_MIT_{metric}_v21.png"
-# plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w',
-#             edgecolor='w', orientation='portrait', papertype=None,
-#             format='png', bbox_inches='tight', pad_inches=0.1)
+save_fig_str = f"UA_TC_risk_MIT_{metric}_v21.png"
+plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w',
+            edgecolor='w', orientation='portrait', papertype=None,
+            format='png', bbox_inches='tight', pad_inches=0.1)
 
-
+#%%
 # plot with fixe y-axis range
-fig, ax = plt.subplots(nrows=4, ncols=2, figsize=(12,18), sharex=True, sharey=False)
+fig, ax = plt.subplots(nrows=4, ncols=2, figsize=(12,12), sharex=True, sharey=False)
+plt.subplots_adjust(left=0.1,
+                    bottom=0.1,
+                    right=0.9,
+                    top=0.9,
+                    wspace=0.4,
+                    hspace=0.4)
 
 # # Set your custom color palette
 customPalette_l = sns.hls_palette(n_colors=3, s=0.6)
@@ -171,16 +221,28 @@ for r, reg in enumerate(region):
         ax[r,p].get_legend().remove()
         ax[r,p].get_yaxis().set_visible(True)
         ax[r,p].set(xlabel='GCMs', ylabel=f'\u0394 {metric} (%)')
-        ax[r,p].set_xticklabels(models, rotation=90)
+        ax[r,p].set_xticklabels(models_srtd, rotation=90)
+        ax[r,p].text(0.05, 0.9, 'corr: '+str(TCR_corr_EAD_dict[r,p]), 
+                     transform=ax[r,p].transAxes, fontsize=16)
         if p==0:
             ax[r,p].set_ylim([1, 200])
         else:
             ax[r,p].set_ylim([1, 400])
+        secax_y = ax[r,p].twinx()
+        secax_y.plot(plt_points, TCR_list, marker='*', color='k', markersize=12, ls='')
+        secax_y.set_ylabel('TCR')
+        sns.despine()
 handles, labels = ax[1,1].get_legend_handles_labels()
-ax[1,1].legend(handles=handles, labels=['SSP245', 'SSP370', 'SSP585'], loc="upper left", bbox_to_anchor=(1, 0.05), handletextpad=0)
+handles2 = Line2D([0], [0], marker='*', color='k', label='TCR', linestyle = 'None',
+                          markerfacecolor='k', markersize=12)
+handles.append(handles2)
+ax[1,1].legend(handles=handles, labels=['SSP245', 'SSP370', 'SSP585', 'TCR'], loc="upper left", bbox_to_anchor=(1.1, 0.05), handletextpad=0)
+
 
 
 # save_fig_str = f"UA_TC_risk_MIT_{metric}_v22.png"
 # plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w',
 #             edgecolor='w', orientation='portrait', papertype=None,
 #             format='png', bbox_inches='tight', pad_inches=0.1)
+
+

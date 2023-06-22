@@ -185,13 +185,15 @@ for m, met in enumerate(metric):
         sns.boxplot(data=delta_df_dict[reg], x="delta", hue="year", y=met, 
                     order=["CC","SOC","sum", "total"], width=.4, showfliers = False, ax=ax[m,r])
         ax[m,r].get_legend().remove()
-        ax[m,r].set_yscale('log')
+        ax[m,r].set_yscale('symlog')
+        sns.despine()
         ax[m,r].set(xlabel="", ylabel="")
         ax[0,r].text(0.05, 0.9, f"{reg}", transform=ax[0,r].transAxes, fontsize=12)
         ax[1,r].text(0.05, 0.9, f"{reg}", transform=ax[1,r].transAxes, fontsize=12)
         ax[m,r].text(-0.1, 1.05, labels_dict[m,r], transform=ax[m,r].transAxes, 
                          fontsize=16, fontweight="bold")
-        ax[m,0].set(xlabel="", ylabel=f"log \u0394 {met} (%)")
+        ax[m,0].set(xlabel="", ylabel=f"\u0394 {met} (%)")
+        ax[m,r].axhline(0, ls='dotted', color='k')
         #ax[m,r].set_ylim(bottom=10**-2, top=10**2)
 handles, labels = ax[1,1].get_legend_handles_labels()
 ax[1,3].legend(handles=handles, labels=labels, loc="upper left", bbox_to_anchor=(1, 1.25))
@@ -231,8 +233,8 @@ for i, basin in enumerate(BASIN_BOUNDS.keys()):
 #ax.gridlines()
 ax.coastlines(color='grey')
 
-# save_fig_str = "delta_TC_risk.png"
-# plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w', 
-#             edgecolor='w', orientation='portrait', papertype=None, 
-#             format='png', bbox_inches='tight', pad_inches=0.1) 
+save_fig_str = "delta_TC_risk.png"
+plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w', 
+            edgecolor='w', orientation='portrait', papertype=None, 
+            format='png', bbox_inches='tight', pad_inches=0.1) 
 
