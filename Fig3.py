@@ -1,7 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Tue Aug 16 15:27:45 2022
+Adapted for code repository on 2023-06-22
+
+description: Figure 3 - plotting of uncertainty output apportioned to GCMs incl.
+             climate sensitivity analysis; incl. option to change metric to rp100,
+             which yields Supplementary Figure 2.
 
 @author: simonameiler
 """
@@ -27,8 +29,8 @@ LOGGER = logging.getLogger(__name__)
 
 # define paths
 unsequa_dir = Path('data/')
-#res_dir = Path('./')
-res_dir = SYSTEM_DIR/'results'
+res_dir = Path('./')
+# res_dir = SYSTEM_DIR/'results'
 
 res = 300
 ref_year = 2005
@@ -69,7 +71,6 @@ for reg in region:
             str(reg)+'_'+str(per)].freq_curve_unc_df.rp100[ssp_idx]
         output_df[str(reg)+'_'+str(per)+'_at_event_ssp_unc'] = output_dict[
             str(reg)+'_'+str(per)].at_event_unc_df[ssp_idx]
-
 
 #%%
 metric = "EAD"
@@ -158,8 +159,8 @@ for r, reg in enumerate(region):
                         fontsize=16, rotation=90)
         ax[r,p].text(-0.1, 1.05, labels_dict[r,p], transform=ax[r,p].transAxes,
                      fontsize=16, fontweight="bold")
-        ax[r,p].text(0.05, 0.9, 'corr: '+str(corr_dict[metric][r,p]), 
-                      transform=ax[r,p].transAxes, fontsize=16)
+        # ax[r,p].text(0.05, 0.9, 'corr: '+str(corr_dict[metric][r,p]), 
+        #               transform=ax[r,p].transAxes, fontsize=16)
         ax[0,0].set_title('2050')
         ax[0,1].set_title('2090')
         ax[r,p].get_legend().remove()
@@ -181,68 +182,3 @@ save_fig_str = f"UA_TC_risk_MIT_{metric}_v21.png"
 plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w',
             edgecolor='w', orientation='portrait', papertype=None,
             format='png', bbox_inches='tight', pad_inches=0.1)
-
-#%%
-# plot with fixe y-axis range
-fig, ax = plt.subplots(nrows=4, ncols=2, figsize=(12,12), sharex=True, sharey=False)
-plt.subplots_adjust(left=0.1,
-                    bottom=0.1,
-                    right=0.9,
-                    top=0.9,
-                    wspace=0.4,
-                    hspace=0.4)
-
-# # Set your custom color palette
-customPalette_l = sns.hls_palette(n_colors=3, s=0.6)
-customPalette_d = sns.hls_palette(n_colors=3, l=0.4, s=1.)
-for r, reg in enumerate(region):
-    for p, per in enumerate(period):
-        sns.stripplot(
-            data=output_df, x="gc_model", y=f"{reg}_{per}_{metric}_unc", hue="ssp_haz",
-            marker='.', dodge=True, alpha=.75, zorder=1, legend=False, palette=["grey"],
-            ax=ax[r,p])
-
-        sns.stripplot(
-            data=output_df, x="gc_model", y=f"{reg}_{per}_{metric}_ssp_unc", hue="ssp_haz",
-            marker=".", dodge=True, alpha=.75, zorder=2, legend=False, palette=customPalette_d,
-            ax=ax[r,p])
-
-        sns.pointplot(
-            data=output_df, x="gc_model", y=f"{reg}_{per}_{metric}_ssp_unc", hue="ssp_haz",
-            join=False, dodge=.8 - .8 / 3, palette=customPalette_d, markers="d",
-            scale=1., estimator="median", errorbar=None, ax=ax[r,p])
-
-        ax[r,0].text(-0.25, 0.5, reg, transform=ax[r,0].transAxes,
-                        fontsize=16, rotation=90)
-        ax[r,p].text(-0.1, 1.05, labels_dict[r,p], transform=ax[r,p].transAxes,
-                     fontsize=16, fontweight="bold")
-        ax[0,0].set_title('2050')
-        ax[0,1].set_title('2090')
-        ax[r,p].get_legend().remove()
-        ax[r,p].get_yaxis().set_visible(True)
-        ax[r,p].set(xlabel='GCMs', ylabel=f'\u0394 {metric} (%)')
-        ax[r,p].set_xticklabels(models_srtd, rotation=90)
-        ax[r,p].text(0.05, 0.9, 'corr: '+str(TCR_corr_EAD_dict[r,p]), 
-                     transform=ax[r,p].transAxes, fontsize=16)
-        if p==0:
-            ax[r,p].set_ylim([1, 200])
-        else:
-            ax[r,p].set_ylim([1, 400])
-        secax_y = ax[r,p].twinx()
-        secax_y.plot(plt_points, TCR_list, marker='*', color='k', markersize=12, ls='')
-        secax_y.set_ylabel('TCR')
-        sns.despine()
-handles, labels = ax[1,1].get_legend_handles_labels()
-handles2 = Line2D([0], [0], marker='*', color='k', label='TCR', linestyle = 'None',
-                          markerfacecolor='k', markersize=12)
-handles.append(handles2)
-ax[1,1].legend(handles=handles, labels=['SSP245', 'SSP370', 'SSP585', 'TCR'], loc="upper left", bbox_to_anchor=(1.1, 0.05), handletextpad=0)
-
-
-
-# save_fig_str = f"UA_TC_risk_MIT_{metric}_v22.png"
-# plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w',
-#             edgecolor='w', orientation='portrait', papertype=None,
-#             format='png', bbox_inches='tight', pad_inches=0.1)
-
-
