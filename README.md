@@ -63,14 +63,12 @@ Python script containing impact analyses. Produces numbers for Supplementary Tab
 Can be executed with the data in the "data" folder.
 
 #### data
-HDF5 files containint the ouput of the uncertainty and sensitivity analyses described above. All files required
+HDF5 files containing the output of the uncertainty and sensitivity analyses described above. All files required
 to reproduce the figures of the publication are provided.
 
 #### Fig*.py
 Python scripts named according to their Figure number in the publication can be used to reproduce the figures.
-
-#### Supp_*.py
-Python scripts starting with Supp_ are used to produce outputs and results for the Supplementary Material and contain
+Figure numbers starting with S are used to produce outputs and results for the Supplementary Material and contain
 code analogous to their main text counterparts.
 
 ## Requirements
