@@ -1,23 +1,20 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Tue Aug 16 15:27:45 2022
+Adapted for code repository on 2023-06-22
+
+description: Supplementary Table 8 - Spearman rank correlation of climate sensitivity
+             and TC risk increase values
 
 @author: simonameiler
 """
 
-import sys
-import scipy as sp
-import numpy as np
 import pandas as pd
 import copy as cp
 import logging
-import seaborn as sns
-import matplotlib.pyplot as plt
+from scipy.stats import spearmanr
 
 #Load Climada modules
 from climada.util.constants import SYSTEM_DIR # loads default directory paths for data
-from climada.engine.unsequa import UncOutput, CalcDeltaImpact, Calc
+from climada.engine.unsequa import UncOutput
 
     
 LOGGER = logging.getLogger(__name__)
@@ -84,23 +81,7 @@ output_df['ECS'] = output_df['gc_model']
 for g in range(1,10):
     output_df.loc[output_df['gc_model'] == g, 'TCR'] = TCR_dict[g]
     output_df.loc[output_df['gc_model'] == g, 'ECS'] = ECS_dict[g]
-    
-#%%
-# sns.scatterplot(data=output_df, x="TCR", y='AP_2050_EAD_unc')
 
-# corr_dict = {}
-# for i, risk_metric in enumerate(['AP_2050_EAD_unc',
-#     'AP_2050_rp100_unc', 'AP_2090_EAD_unc', 'AP_2090_rp100_unc',
-#     'IO_2050_EAD_unc', 'IO_2050_rp100_unc', 'IO_2090_EAD_unc',
-#     'IO_2090_rp100_unc', 'SH_2050_EAD_unc', 'SH_2050_rp100_unc',
-#     'SH_2090_EAD_unc', 'SH_2090_rp100_unc', 'WP_2050_EAD_unc',
-#     'WP_2050_rp100_unc', 'WP_2090_EAD_unc', 'WP_2090_rp100_unc']):
-#     corr = output_df["TCR"].corr(output_df[risk_metric])
-#     corr_dict[risk_metric] = corr
-#     ax = sns.scatterplot(data=output_df, x="TCR", y=risk_metric)
-    
-#%%
-from scipy.stats import spearmanr
 
 # Calculate Spearman's rank correlation coefficient and p-value
 corr_dict_spearman = {}
@@ -116,21 +97,6 @@ for i, risk_metric in enumerate(['AP_2050_EAD_unc',
     print("Spearman's correlation coefficient:", rho)
     print("p-value:", pval)
     
-    
-#%%
-from scipy.stats import kendalltau
-corr_dict_kendall = {}
-for i, risk_metric in enumerate(['AP_2050_EAD_unc',
-    'AP_2050_rp100_unc', 'AP_2090_EAD_unc', 'AP_2090_rp100_unc',
-    'IO_2050_EAD_unc', 'IO_2050_rp100_unc', 'IO_2090_EAD_unc',
-    'IO_2090_rp100_unc', 'SH_2050_EAD_unc', 'SH_2050_rp100_unc',
-    'SH_2090_EAD_unc', 'SH_2090_rp100_unc', 'WP_2050_EAD_unc',
-    'WP_2050_rp100_unc', 'WP_2090_EAD_unc', 'WP_2090_rp100_unc']):
-    tau, pval = kendalltau(output_df["TCR"], output_df[risk_metric])
-    corr_dict_kendall[risk_metric] = tau, pval
-    # Print the results
-    print("Kendall's tau correlation coefficient:", tau)
-    print("p-value:", pval)
     
 #%%
 # make dataframe of all EAD values over all basins
