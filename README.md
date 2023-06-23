@@ -19,57 +19,42 @@ Contact: [Simona Meiler](simona.meiler@usys.ethz.ch)
 
 ## Content:
 
-#### Cent_exposure.py
-Python script to generate the centroids and exposure files.
+#### Centroids.py
+Python script to generate the centroids files.
 
-#### Hazard_*.py
-Python scripts to load TC track sets and calculate the 2D windfield. The * stands for the TC track set used for each
-respective calculation. The output hdf5 files are the hazard sets, which are further used for the impact calculation.
-Note that this step requires a computer cluster and that the output files are large (up to over 10GB per file).
+#### Exposure_vary_baseline.py
+Python script to generate the baseline Exposure files for different exponent combinations of the LitPop method.
 
-#### TC_subsample.py
-Python script for hazard analysis: draw subsamples at length of IBTrACS (39 years).
-Make sure to run this before running the remaining `TC_*.py` scripts.
+#### Hazard_windfield_calc.py
+Python scripts to load TC track sets (for present and the two future periods, various GCMs and emission scenarios) 
+and calculate the 2D windfields using two wind models. The output hdf5 files are the hazard sets, which are further 
+used for the uncertainty and sensitivity analysis `UA_SA*`.
+Note that this step requires a computer cluster and that the output files are large (multiple GB per file).
 
-#### TC_max_wind.py
-Python script for hazard analysis: extract max wind speeds over land (!) from wind field data sets.
-Make sure to run this before running the remaining `TC_*.py` scripts below.
+#### SSP_GDP_scenarios_preprocessing.py
+Python script which converts GDP growth factors downloaded from the SSP public database and stored in `iamc_db.csv`
+into annual growth factors for each SSP scenario and country (`ssps_gdp_annual.csv`). Needed for the `UA_SA*` Python scripts.
 
-#### TC_track_stats.py
-Python script for hazard analysis: landfall intensity statistics from track data.
-Make sure to run this after `TC_max_wind.py` and `TC_subsample.py`, and before running
-the `TC_histograms.py` script below.
-
-#### TC_haz_stats.py
-Python script for hazard analysis: landfall intensity statistics from windfield data.
-Make sure to run this after `TC_max_wind.py` and `TC_subsample.py`, and before running
-the `TC_histograms.py` script below.
-
-#### TC_histograms.py
-Python script for hazard analysis: plot landfall intensity histograms, from track (Supplementary Figure 1) or
-windfield data (Figure 1).
-Make sure to run the `TC_track_stats.py` and `TC_haz_stats.py` scripts (above) before running this script.
-
-#### Impact_calc.py
-Python script to compute the estimated loss from different synthetic tropical cyclone hazard sets - run on
-the ETH Euler cluster. The output csv files are post-processed in Impact_post-process.py.
-
-#### Impact_post-process.py
-Python script for post-processing of impact results; subsampling, confidence intervals, etc.
-The output npz files are used for plotting and uploaded in the data folder.
-
-#### Impact_tables_res.py
-Python script containing impact analyses. Produces numbers for Supplementary Tables 1-4 and Hurricane Maria analysis.
-Can be executed with the data in the "data" folder.
+#### UA_SA*.py
+Python scripts to run the publication's central uncertainty and sensitivity analyses. Files are named after their primary
+analysis focus: `abs` refers to UA/SA for absolute TC risk estimate in the future, `CC` and `SOC` are to assess climate
+change and socio-economic development independently, `main` yields UA/SA results for the total TC risk increase.
+Note that this step requires a computer cluster.
 
 #### data
+CSV and Excel files with GDP growth factors from the SSP public database. `iamc_db.csv` is needed for `SSP_GDP_scenarios_preprocessing.py`
+and yields `ssps_gdp_annual.csv`, which is used in the `UA_SA*` Python scripts.
 HDF5 files containing the output of the uncertainty and sensitivity analyses described above. All files required
 to reproduce the figures of the publication are provided.
 
 #### Fig*.py
-Python scripts named according to their Figure number in the publication can be used to reproduce the figures.
-Figure numbers starting with S are used to produce outputs and results for the Supplementary Material and contain
+Python scripts named according to their Figure number in the publication; can be used to reproduce the figures.
+Figure numbers starting with S produce outputs and results for the Supplementary Material and contain
 code analogous to their main text counterparts.
+
+#### SI_TabS*.py
+Python script named according to their Table number in the publication's Supplementary Information to produce the
+respective values.
 
 ## Requirements
 Requires:
@@ -77,6 +62,7 @@ Requires:
 * _CLIMADA_ repository version 3.3.1+:
         https://wcr.ethz.ch/research/climada.html
         https://github.com/CLIMADA-project/climada_python
+* branch: feature/unsequa_delta_climate
 
 ## ETH cluster
 Computationally demanding calculations were run on the [Euler cluster of ETH Zurich](https://scicomp.ethz.ch/wiki/Euler).
