@@ -1,7 +1,7 @@
 """
 Adapted for code repository on 2023-06-22
 
-description: Figure 2 - plotting of sensitivity indices
+description: Uncertainty and sensitivity analysis - absolute TC risk (no baseline)
 
 @author: simonameiler
 """

@@ -1,7 +1,7 @@
 """
 Adapted for code repository on 2023-06-22
 
-description: Figure 2 - plotting of sensitivity indices
+description: Uncertainty and sensitivity analysis - main analysis
 
 @author: simonameiler
 """
@@ -33,6 +33,7 @@ def main(region, period):
     # define paths
     haz_dir = SYSTEM_DIR/"hazard/future"
     unsequa_dir = SYSTEM_DIR/"unsequa"
+    #SYSTEM_DIR = Path('./data')
     
     res = 300
     ref_year = 2005

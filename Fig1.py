@@ -2,6 +2,8 @@
 Adapted for code repository on 2023-06-22
 
 description: Figure 1 - plotting of TC risk change drivers
+             Supplementary Information Table S1 and S2 - values describing the 
+             boxplots of Figure 1 in more detail.
 
 @author: simonameiler
 """
@@ -163,3 +165,8 @@ plt.savefig(res_dir.joinpath(save_fig_str), dpi=300, facecolor='w',
             edgecolor='w', orientation='portrait', papertype=None, 
             format='png', bbox_inches='tight', pad_inches=0.1) 
 
+#%% create csv files for boxplots values - Supplementary Tables S1, S2
+for m, met in enumerate(metric):
+    for r, reg in enumerate(['AP', 'IO', 'SH', 'WP']):
+        save_csv_str = f"{reg}_{met}_describe_sum.csv"
+        delta_df_dict[reg].groupby(["delta","year"])[met].describe().to_csv(res_dir.joinpath(save_csv_str))

@@ -18,7 +18,7 @@ Keywan Riahi, Detlef P. van Vuuren, Elmar Kriegler, Jae Edmonds, Brian C. O’Ne
 The Shared Socioeconomic Pathways and their energy, land use, and greenhouse gas emissions implications: An overview, Global Environmental Change, Volume 42, Pages 153-168, 2017,
 ISSN 0959-3780, DOI:110.1016/j.gloenvcha.2016.05.009
 
-Selection: 1. Region - all countries, 2. Scenarios - POP, 3. Variable - Population (growth Total)
+Selection: 1. Region - all countries, 2. Scenarios - GDP - IASA/OECD/PIK, 3. Variable - GDP (growth Total)
 """
 
 df_growth = pd.read_csv(gdp_file, header=0)
@@ -37,4 +37,4 @@ def calc_growthrate(df_growth):
     return growth
         
 growth = calc_growthrate(df_growth)
-growth.to_csv('/Users/simonameiler/Documents/WCR/Active_Research_Projects/TC_future/data/ssps_pop_annual.csv')
+growth.to_csv('/Users/simonameiler/Documents/WCR/Active_Research_Projects/TC_future/data/ssps_gdp_annual.csv')
